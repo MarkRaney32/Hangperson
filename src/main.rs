@@ -2,6 +2,7 @@
 use std::fs;
 use rand::seq::IteratorRandom;
 use std::io::{self, Write};
+//use std::ascii::AsciiExt;
 
 // Max word length
 const MWL: usize = 20;
@@ -18,7 +19,7 @@ fn main() {
 
     // Selecting word and filling dependent variables
     select_word(&mut word_size, &mut word, &mut user);
-    user_input(&mut guess);
+    user_input(&mut guess, &mut guessed);
     /*
     while word != user {
 
@@ -84,12 +85,12 @@ fn print_game_state(user: [char; MWL], guessed: [bool; 26], misses: i32) {
     }
 }
 
-fn user_input(guess: &mut char) {
+fn user_input(guess: &mut char, guessed: &mut [bool; 26]) {
 
     // repeatedly taking string input from stdin
     // until it is a single alphabet character
     let mut string_in = String::new();
-    let mut temp_char = '\0';
+    let mut temp_char;
     loop {
         loop {
             print!("Enter your guess: ");
@@ -101,12 +102,20 @@ fn user_input(guess: &mut char) {
             string_in = String::new();
         }
         temp_char = string_in.chars().next().expect("Something went wrong");
-        if temp_char.is_alphabetic() {
+        if temp_char.is_alphabetic() && !already_guessed(temp_char.to_ascii_uppercase(), guessed){
             break;
         }
     }
 
-    // updating guess pointer
-    *guess = string_in.chars().next().expect("Something went wrong");
+    *guess = temp_char.to_ascii_uppercase();
 
+}
+
+fn already_guessed(guess: char, guessed: &mut [bool; 26]) -> bool {
+    // Checks if the user input has already been entered
+    if guessed[guess as usize - 65] {
+        return true;
+    }
+    guessed[guess as usize - 65] = true;
+    return false;
 }
