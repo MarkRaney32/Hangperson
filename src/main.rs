@@ -16,17 +16,33 @@ fn main() {
     let mut user: [char; MWL] = ['\0'; MWL];
     let mut word_size = 0;
     let mut guess: char = '\0';
+    let mut misses = 0;
 
     // Selecting word and filling dependent variables
     select_word(&mut word_size, &mut word, &mut user);
+    print_game_state(user, guessed, misses);
     user_input(&mut guess, &mut guessed);
-    /*
+    misses += update_game_state(guess, word_size, word, &mut user);
+
+    // game loop
     while word != user {
-
+        if misses > 5 { break; }
+        print_game_state(user, guessed, misses);
+        user_input(&mut guess, &mut guessed);
+        misses += update_game_state(guess, word_size, word, &mut user);
     }
-    */
 
-    print_game_state(user, guessed, 2);
+    // Printing end condition
+    if misses > 5 {
+        print!("\nYou lose! The word was: ");
+        for chr in word {
+            if chr == '\0' {break;}
+            print!("{}", chr);
+        }
+    } else {
+        println!("\nYou win!");
+    }
+
 }
 
 fn select_word(word_size: &mut i32, word: &mut [char; MWL], user: &mut [char; MWL]) {
@@ -57,7 +73,7 @@ fn print_game_state(user: [char; MWL], guessed: [bool; 26], misses: i32) {
     // registering progress
     let mut body_parts: [char; 6] = ['o', '/', '|', '\\', '/', '\\'];
     for n in 0..6 {
-        if n > misses {
+        if n >= misses {
             body_parts[n as usize] = ' ';
         }
     }
@@ -76,8 +92,10 @@ fn print_game_state(user: [char; MWL], guessed: [bool; 26], misses: i32) {
         print!("{}", chr);
     }
 
+    println!("\n\nMisses: {}", misses);
+
     // printing what the user has already guessed
-    print!("\nAlready guessed: ");
+    print!("Already guessed: ");
     for n in 0..26 {
         if guessed[n as usize] {
             print!("{}", (n + 65) as u8 as char);
@@ -93,7 +111,7 @@ fn user_input(guess: &mut char, guessed: &mut [bool; 26]) {
     let mut temp_char;
     loop {
         loop {
-            print!("Enter your guess: ");
+            print!("\nEnter your guess: ");
             io::stdout().flush().expect("flush failed!");
             io::stdin().read_line(&mut string_in).unwrap();
             if string_in.len() == 3 {
@@ -118,4 +136,19 @@ fn already_guessed(guess: char, guessed: &mut [bool; 26]) -> bool {
     }
     guessed[guess as usize - 65] = true;
     return false;
+}
+
+fn update_game_state(guess: char, word_size: i32, word: [char; MWL], user: &mut [char; MWL]) -> i32{
+    // Updates current user game state
+    // returns correctness of guess:
+    //     0: correct guess
+    //     1: incorrect guess
+
+    let mut result = 1;
+    for index in 0..word_size {
+        if guess == word[index as usize].to_ascii_uppercase() {
+            user[index as usize] = guess;
+            result = 0;
+        }
+    } return result;
 }
