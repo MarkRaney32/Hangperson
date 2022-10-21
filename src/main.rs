@@ -32,15 +32,19 @@ fn main() {
         misses += update_game_state(guess, word_size, word, &mut user);
     }
 
+    print_game_state(user, guessed, misses);
+
+
     // Printing end condition
     if misses > 5 {
-        print!("\nYou lose! The word was: ");
-        for chr in word {
-            if chr == '\0' {break;}
-            print!("{}", chr);
-        }
+        println!("\n\nYou lose!");
     } else {
-        println!("\nYou win!");
+        println!("\n\nYou win!");
+    }
+    print!("The word was: ");
+    for chr in word {
+        if chr == '\0' {break;}
+        print!("{}", chr);
     }
 
 }
@@ -62,7 +66,7 @@ fn select_word(word_size: &mut i32, word: &mut [char; MWL], user: &mut [char; MW
 
     // filling arrays
     for chr in word_string.chars() {
-        word[*word_size as usize] = chr;
+        word[*word_size as usize] = chr.to_ascii_uppercase();
         user[*word_size as usize] = '-';
         *word_size += 1;
     }
